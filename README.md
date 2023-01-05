@@ -68,12 +68,17 @@ Install npm dependencies, using cache if already cached. Cache based on availabl
 Usage:
 
 ```yml
-- uses: chill-viking/workflows/actions/npm-ci@main
-  name: Install dependencies
-  with:
-    working-directory: './npm-root-folder/'
+jobs:
+  job-id:
+    name: 'Name of job'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chill-viking/workflows/actions/npm-ci@main
+        name: Install dependencies
+        with:
+          working-directory: './npm-root-folder/'
 ```
 
 Inputs:
 
-- `working-directory`: location of root npm folder, defaults to `'./'` (should contain `/` as `node_modules` will be appended to specify location of node modules folder).
+- `working-directory`: location of root npm folder, defaults to `'./'` (should contain `/` as `node_modules` will be appended to specify location of node modules folder)
