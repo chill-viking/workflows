@@ -1,0 +1,24 @@
+name: nx-test-and-build
+author: 'Peter Jokumsen'
+description: 'Script to test and build project'
+
+inputs:
+  project-name:
+    description: 'Project name to test and build'
+    required: true
+  working-directory:
+    description: 'Directory containing nx workspace'
+    default: './'
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: pwsh
+      working-directory: ${{ inputs.working-directory }}
+      run: npx nx run ${{ inputs.project-name }}:test --code-coverage
+      name: Test ${{ inputs.project-name }}
+
+    - shell: pwsh
+      working-directory: ${{ inputs.working-directory }}
+      run: npx nx run ${{ inputs.project-name }}:build:production
+      name: Build ${{ inputs.project-name }}

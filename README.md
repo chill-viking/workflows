@@ -60,6 +60,7 @@ uses: chill-viking/workflows/actions/{action-folder}@main
 ### Available composite actions
 
 - [npm-ci](#npm-ci)
+- [nx-test-and-build](#nx-test-and-build)
 
 #### npm-ci
 
@@ -82,3 +83,27 @@ jobs:
 Inputs:
 
 - `working-directory`: location of root npm folder, defaults to `'./'` (should contain `/` as `node_modules` will be appended to specify location of node modules folder)
+
+#### nx-test-and-build
+
+Composite action to run test and build targets for the current nx workspace.
+
+Usage:
+
+```yml
+jobs:
+  job-id:
+    name: 'Name of job'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chill-viking/workflows/actions/nx-test-and-build@main
+        name: Test and Build nx-project
+        with:
+          project-name: 'nx-project'
+          working-directory: './npm-root-folder/'
+```
+
+Inputs:
+
+- `project-name`: name of project in nx workspace to run `:test` and `:build:production` against
+- `working-directory`: location of nx workspace, will default to `'./'`
