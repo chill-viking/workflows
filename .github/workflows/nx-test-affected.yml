@@ -47,7 +47,7 @@ jobs:
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
 
-      - uses: chill-viking/actions/npm-ci
+      - uses: chill-viking/workflows/actions/npm-ci@main
         name: Install dependencies w/ caching
         with:
           working-directory: ${{ inputs.working-directory }}
