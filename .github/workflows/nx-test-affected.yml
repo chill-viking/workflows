@@ -7,12 +7,20 @@ on:
         type: string
       fetch-depth:
         description: 'Fetch depth to use for checkout, defaults to 5'
-        default: 5
+        default: 0
         type: number
       agent-count:
         description: 'Number of agents to be used, defaults to 3'
         default: 3
         type: number
+      base:
+        description: 'Base to compare, defaults to origin/main'
+        default: 'origin/main'
+        type: string
+      head:
+        description: 'Target to compare, defaults to HEAD'
+        default: 'HEAD'
+        type: string
 
 name: Lint, Test, and Build Affected
 
@@ -22,6 +30,7 @@ concurrency:
 
 jobs:
   lint-workspace:
+    runs-on: ubuntu-latest
     name: Nx Lint Workspace
     defaults:
       run:
@@ -30,16 +39,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: chill-viking/workflows/actions/npm-ci@main
+        name: Install dependencies w/ caching
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
       - name: Lint Workspace
         run: npx nx-cloud record -- npx nx workspace-lint
 
   lint-test-build:
+    runs-on: ubuntu-latest
     strategy:
-    matrix:
-      target:
-        - lint
-        - test
-        - build
+      matrix:
+        target:
+          - lint
+          - test
+          - build
     name: 'Nx Affected: ${{ matrix.target }}'
     defaults:
       run:
@@ -55,5 +70,14 @@ jobs:
         with:
           working-directory: ${{ inputs.working-directory }}
 
-      - name: Run Target
-        run: npx nx affected --target=${{ matrix.target }} --parallel=${{ inputs.agents }}
+      - name: Run Target ${{ matrix.target }}
+        run: |
+          $expression=@(
+            'npx nx affected'
+            '--target=${{ matrix.target }}'
+            '--parallel=${{ inputs.agent-count }}'
+            '--base=${{ inputs.base }}'
+            '--head=${{ inputs.head }}'
+          ) -join ' '
+          echo $expression
+          Invoke-Expression $expression

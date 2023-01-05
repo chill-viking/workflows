@@ -19,13 +19,9 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 
 ### Available Re-usable Workflows
 
-- [nx/test-affected.yml](#test-affectedyml)
+- [nx-test-affected.yml](#test-affectedyml)
 
-#### nx workflows
-
-Workflows meant for use with an `nx` project.
-
-##### test-affected.yml
+#### test-affected.yml
 
 Will call lint/test/build targets for all affected projects inside of the specified nx workspace.
 
@@ -43,8 +39,10 @@ Usage:
 Inputs:
 
 - `working-directory`: location of nx workspace, will default to `'./'`
-- `fetch-depth`: values passed to `actions/checkout` when checking out repository, defaults to `5`
+- `fetch-depth`: values passed to `actions/checkout` when checking out repository, defaults to `0`
 - `agent-count`: number of parallel agents to use for `nx` commands, defaults to `3`
+- `base`: specify the base for comparing affected, defaults to `origin/master` (include `origin/` as the local git repo will not have any other local branches)
+- `head`: specify the head for comparing affected, defaults to `HEAD` (the latest commit)
 
 ## Composite actions
 
