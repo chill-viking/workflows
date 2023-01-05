@@ -21,7 +21,7 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 ### Available Re-usable Workflows
 
 - [nx-test-affected.yml](#test-affectedyml)
-- [nx-sonar-cloud-scanner.yml](#nx-sonar-cloud-scanneryml)
+- [nx-sonar-cloud-scan.yml](#nx-sonar-cloud-scanyml)
 
 #### test-affected.yml
 
@@ -48,7 +48,7 @@ Inputs:
 - `base`: specify the base for comparing affected, defaults to `origin/master` (include `origin/` as the local git repo will not have any other local branches)
 - `head`: specify the head for comparing affected, defaults to `HEAD` (the latest commit)
 
-#### nx-sonar-cloud-scanner.yml
+#### nx-sonar-cloud-scan.yml
 
 Will test and build nx project and publish results to sonar cloud.
 
@@ -58,7 +58,7 @@ Usage:
 jobs:
   use-workflow:
     name: lint, test, and publish
-    uses: chill-viking/workflows/.github/workflows/nx-sonar-cloud-scanner.yml@main
+    uses: chill-viking/workflows/.github/workflows/nx-sonar-cloud-scan.yml@main
     with:
       sonar-project: sonar-cloud-project-key
       working-directory: ./nx-workspace-folder/
