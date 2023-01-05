@@ -36,3 +36,28 @@ Suggested workflow to call this workflow:
 ```yml
 
 ```
+
+## Composite actions
+
+Actions to be re-used in workflows.
+
+To use an action:
+
+```yml
+uses: chill-viking/workflows/actions/{action-folder}@main
+```
+
+### Available composite actions
+
+- [npm-ci](#npm-ci)
+
+#### npm-ci
+
+Install npm dependencies, using cache if already cached. Cache based on available `package-lock.json` files in source.
+
+Usage:
+
+```yml
+- uses: chill-viking/workflows/actions/npm-ci@main
+  name: Install dependencies
+```
