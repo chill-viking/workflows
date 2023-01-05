@@ -21,6 +21,7 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 ### Available Re-usable Workflows
 
 - [nx-test-affected.yml](#test-affectedyml)
+- [nx-sonar-cloud-scanner.yml](#nx-sonar-cloud-scanneryml)
 
 #### test-affected.yml
 
@@ -46,6 +47,57 @@ Inputs:
 - `agent-count`: number of parallel agents to use for `nx` commands, defaults to `3`
 - `base`: specify the base for comparing affected, defaults to `origin/master` (include `origin/` as the local git repo will not have any other local branches)
 - `head`: specify the head for comparing affected, defaults to `HEAD` (the latest commit)
+
+#### nx-sonar-cloud-scanner.yml
+
+Will test and build nx project and publish results to sonar cloud.
+
+Usage:
+
+```yml
+jobs:
+  use-workflow:
+    name: lint, test, and publish
+    uses: chill-viking/workflows/.github/workflows/nx-sonar-cloud-scanner.yml@main
+    with:
+      sonar-project: sonar-cloud-project-key
+      working-directory: ./nx-workspace-folder/
+      project-location: apps/project-name
+      project-name: project-name
+      config-location: tsconfig.app.json
+      package-location: ./nx-workspace-folder/
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+To get code coverage included, update project `jest.config.ts` with the following:
+
+```json
+{
+  coverageDirectory: 'coverage',
+  coverageReporters: [['lcov', { projectRoot: 'apps/project-name' }]],
+}
+```
+
+This will update coverage reporting to create the report at `coverage/lcov.info` in the project folder and have the generated coverage work for the project root.
+
+Parameters:
+
+- `sonar-org`: organization key to use for sonarcloud, defaults to `chill-viking-org`
+- `sonar-project`: project key to use for sonarcloud, required input
+- `working-directory`: location of nx workspace, will default to `'./'`
+- `project-location`: location of project root in workspace, required input
+- `coverage-location`: location to find `lcov.info` report, defaults to `coverage/lcov.info`
+- `project-name`: name of project to test and build, required input
+- `config-location`: TS config to use for report, relative to project location. Required input
+- `project-version`: optional override for project version to be passed to sonarcloud
+- `package-location`: folder containing `package.json` version will be retrieved from that file. Only used if `project-version` is not supplied
+
+Secrets:
+
+- `sonar-token`: sonar token to be used for publishing to sonarcloud
+- `github-token`: GitHub token to use for publishing
 
 ## Composite actions
 
