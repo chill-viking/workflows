@@ -8,7 +8,7 @@ To use a workflow:
 
 ```yaml
 Uses:
-  chill-viking/workflows/.github/workflows/{FOLDER}/{FILENAME}.yml@TAG_OR_BRANCH
+  chill-viking/workflows/.github/workflows/{FILENAME}.yml@TAG_OR_BRANCH
 ```
 
 Typically would suggest using `main` branch when using a workflow. Not really going to bother with tagging this repo at this time, but that may change later... we'll see.
@@ -32,7 +32,7 @@ Will call lint/test/build targets for all affected projects inside of the specif
 Usage:
 
 ```yml
-- uses: chill-viking/workflows.github/workflows/nx/test-affected.yml@main
+- uses: chill-viking/workflows/.github/workflows/nx-test-affected.yml@main
   name: 'Test Affected'
   with:
     working-directory: './npm-root-folder/'
