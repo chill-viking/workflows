@@ -60,4 +60,10 @@ Usage:
 ```yml
 - uses: chill-viking/workflows/actions/npm-ci@main
   name: Install dependencies
+  with:
+    working-directory: './npm-root-folder/'
 ```
+
+Inputs:
+
+- `working-directory`: location of root npm folder, defaults to `'./'` (should contain `/` as `node_modules` will be appended to specify location of node modules folder).

@@ -5,7 +5,7 @@ description: 'Install npm dependencies or use cached dependencies'
 inputs:
   working-directory:
     description: 'Working directory to use'
-    default: '.'
+    default: './'
 
 runs:
   using: 'composite'
@@ -17,7 +17,7 @@ runs:
         cache-name: cache-node-modules
       with:
         # caching node_modules
-        path: ${{ inputs.working-directory }}/node_modules
+        path: ${{ inputs.working-directory }}node_modules
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
