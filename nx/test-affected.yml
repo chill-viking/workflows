@@ -4,24 +4,53 @@ on:
       working-directory:
         description: 'Directory nx workspace is found in, defaults to root'
         default: './'
+      fetch-depth:
+        description: 'Fetch depth to use for checkout, defaults to 5'
+        default: 5
+      agent-count:
+        description: 'Number of agents to be used, defaults to 3'
+        default: 3
 
 name: Lint, Test, and Build Affected
 
-jobs:
-  main:
-    name: Nx Cloud - Main Job
-    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.11
-    working-directory: ./chill-viking-home
-    with:
-      number-of-agents: 3
-      parallel-commands: |
-        npx nx-cloud record -- npx nx workspace-lint
-      parallel-commands-on-agents: |
-        npx nx affected --target=lint --parallel=3 & npx nx affected --target=test --parallel=3 & npx nx affected --target=build --parallel=3
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-  agents:
-    name: Nx Cloud - Agents
-    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.11
-    working-directory: ./chill-viking-home
-    with:
-      number-of-agents: 3
+jobs:
+  lint-workspace:
+    name: Nx Lint Workspace
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Lint Workspace
+        run: npx nx-cloud record -- npx nx workspace-lint
+
+  lint-test-build:
+    strategy:
+    matrix:
+      target:
+        - lint
+        - test
+        - build
+    name: 'Nx Affected: ${{ matrix.target }}'
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - uses: chill-viking/actions/npm-ci
+        name: Install dependencies w/ caching
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Run Target
+        run: npx nx affected --target=${{ matrix.target }} --parallel=${{ inputs.agents }}
