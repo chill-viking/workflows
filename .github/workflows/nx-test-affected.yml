@@ -4,12 +4,15 @@ on:
       working-directory:
         description: 'Directory nx workspace is found in, defaults to root'
         default: './'
+        type: string
       fetch-depth:
         description: 'Fetch depth to use for checkout, defaults to 5'
         default: 5
+        type: number
       agent-count:
         description: 'Number of agents to be used, defaults to 3'
         default: 3
+        type: number
 
 name: Lint, Test, and Build Affected
 
