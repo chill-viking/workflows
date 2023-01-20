@@ -25,7 +25,7 @@ on:
 name: Lint, Test, and Build Affected
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-nx-test-affected
   cancel-in-progress: true
 
 jobs:
