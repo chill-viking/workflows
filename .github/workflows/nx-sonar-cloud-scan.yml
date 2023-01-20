@@ -61,6 +61,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: 'Checkout code'
+        with:
+          fetch-depth: 0
 
       - uses: chill-viking/workflows/actions/npm-ci@main
         name: Install Dependencies
