@@ -13,10 +13,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - shell: pwsh
-      working-directory: ${{ inputs.working-directory }}
-      run: npx nx run ${{ inputs.project-name }}:test --code-coverage
+    - uses: chill-viking/workflows/actions/nx-test@main
       name: Test ${{ inputs.project-name }}
+      with:
+        project-name: ${{ inputs.project-name }}
+        working-directory: ${{ inputs.working-directory }}
 
     - shell: pwsh
       working-directory: ${{ inputs.working-directory }}
