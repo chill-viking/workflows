@@ -12,7 +12,7 @@ jobs:
     uses: chill-viking/workflows/.github/workflows/{FILENAME}.yml@TAG_OR_BRANCH
 ```
 
-Typically would suggest using `main` branch when using a workflow. Not really going to bother with tagging this repo at this time, but that may change later... we'll see.
+Typically, would suggest using `main` branch when using a workflow. Not really going to bother with tagging this repo at this time, but that may change later... we'll see.
 
 To create a re-usable workflow, it just needs to have `workflow_call` specified as it's trigger, which you can use to specify `inputs` and `secrets` for the workflow.
 
@@ -25,7 +25,7 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 
 #### test-affected.yml
 
-Will call lint/test/build targets for all affected projects inside of the specified nx workspace.
+Will call lint/test/build targets for all affected projects inside the specified nx workspace.
 
 Usage:
 
@@ -42,11 +42,13 @@ jobs:
 
 Inputs:
 
-- `working-directory`: location of nx workspace, will default to `'./'`
-- `fetch-depth`: values passed to `actions/checkout` when checking out repository, defaults to `0`
-- `agent-count`: number of parallel agents to use for `nx` commands, defaults to `3`
-- `base`: specify the base for comparing affected, defaults to `origin/master` (include `origin/` as the local git repo will not have any other local branches)
-- `head`: specify the head for comparing affected, defaults to `HEAD` (the latest commit)
+| Name                | Description                                      | Required | Default       |
+|---------------------|--------------------------------------------------|----------|---------------|
+| `working-directory` | The directory to run the workflow from.          | No       | `./`          |
+| `fetch-depth`       | The number of commits to fetch.                  | No       | `0`           |
+| `agent-count`       | The number of agents to use for parallelization. | No       | `3`           |
+| `base`              | The base branch to compare against.              | No       | `origin/main` |
+| `head`              | The head branch to compare against.              | No       | `HEAD`        |
 
 #### nx-sonar-cloud-scan.yml
 
@@ -73,10 +75,12 @@ jobs:
 
 To get code coverage included, update project `jest.config.ts` with the following:
 
-```json
-{
+```typescript
+export default {
+  // ...
   coverageDirectory: 'coverage',
   coverageReporters: [['lcov', { projectRoot: 'apps/project-name' }]],
+  // ...
 }
 ```
 
@@ -84,20 +88,24 @@ This will update coverage reporting to create the report at `coverage/lcov.info`
 
 Parameters:
 
-- `sonar-org`: organization key to use for sonarcloud, defaults to `chill-viking-org`
-- `sonar-project`: project key to use for sonarcloud, required input
-- `working-directory`: location of nx workspace, will default to `'./'`
-- `project-location`: location of project root in workspace, required input
-- `coverage-location`: location to find `lcov.info` report, defaults to `coverage/lcov.info`
-- `project-name`: name of project to test and build, required input
-- `config-location`: TS config to use for report, relative to project location. Required input
-- `project-version`: optional override for project version to be passed to sonarcloud
-- `package-location`: folder containing `package.json` version will be retrieved from that file. Only used if `project-version` is not supplied
+| Name                | Description                             | Required | Default                                    |
+|---------------------|-----------------------------------------|----------|--------------------------------------------|
+| `sonar-org`         | Sonar Cloud organization key            | No       | `chill-viking-org`                         |
+| `sonar-project`     | Sonar Cloud project key                 | Yes      |                                            |
+| `working-directory` | Location of nx workspace                | No       | `./`                                       |
+| `project-location`  | Location of project within nx workspace | Yes      |                                            |
+| `coverage-location` | Location of coverage report             | No       | `coverage/lcov.info`                       |
+| `project-name`      | Name of project                         | Yes      |                                            |
+| `config-location`   | Location of project TS config file      | Yes      |                                            |
+| `project-version`   | Version of project                      | No       | `''` - will be retrieved from package.json |
+| `package-location`  | Location of project package.json file   | No       | `{working-directory}{project-location}`    |
 
 Secrets:
 
-- `sonar-token`: sonar token to be used for publishing to sonarcloud
-- `github-token`: GitHub token to use for publishing
+| Name           | Description                  |
+|----------------|------------------------------|
+| `sonar-token`  | Sonar Cloud token            |
+| `github-token` | GitHub token for PR comments |
 
 ## Composite actions
 
