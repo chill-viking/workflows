@@ -119,9 +119,49 @@ uses: chill-viking/workflows/actions/{action-folder}@main
 
 ### Available composite actions
 
+- [get-json-version](#get-json-version)
 - [npm-ci](#npm-ci)
 - [nx-test](#nx-test)
 - [nx-test-and-build](#nx-test-and-build)
+
+#### get-json-version
+
+Get version from `package.json` or any json file with a `version` property.
+
+Usage:
+
+```yml
+jobs:
+  job-id:
+    name: 'Name of job'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chill-viking/workflows/actions/get-json-version@main
+        name: Get version
+        id: step-id
+        with:
+          path: 'npm-root-folder'
+
+      # Use version read from ./npm-root-folder/package.json
+      - run: echo ${{ steps.step-id.outputs.json-version }} # 1.0.0
+```
+
+Inputs:
+
+| Name        | Description                                          | Required | Default        |
+|-------------|------------------------------------------------------|----------|----------------|
+| `path`      | The path of the folder containing the json file. 1️  | No       | `.`            |
+| `json-file` | The json file containing `version` property to read. | No       | `package.json` |
+
+Notes:
+
+1️ Should only be the folder path, not the file name.
+
+Outputs:
+
+| Name           | Description                                                       |
+|----------------|-------------------------------------------------------------------|
+| `json-version` | The value of `version` property from `json-file` in `path` folder |
 
 #### npm-ci
 

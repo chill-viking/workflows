@@ -1,0 +1,37 @@
+name: Get NPM Version
+description: Get NPM package version
+
+inputs:
+  path:
+    description: Path to package.json
+    required: false
+    default: '.'
+  json-file:
+    description: JSON file with 'version' property
+    required: false
+    default: 'package.json'
+
+outputs:
+  json-version:
+    description: Resolved package version
+    value: ${{ steps.get-package-version.outputs.json-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get NPM Package Version
+      id: get-package-version
+      shell: pwsh
+      run: |
+        $filePath = '${{ inputs.path }}/${{ inputs.json-file }}'
+        if (Test-Path $filePath)
+        {
+          $version = (Get-Content $filePath) -join "`n" | ConvertFrom-Json | Select -ExpandProperty "version"
+          Write-Output "json-version=${version}" >> $env:GITHUB_OUTPUT
+        }
+        else
+        {
+          $message = "${{ inputs.json-file }} not found at ${{ inputs.path }}"
+          Write-Output "::error title=${{ inputs.json-file }} not found::${message}"
+          exit 1
+        }
