@@ -255,8 +255,10 @@ jobs:
 
 Inputs:
 
-- `project-name`: name of project in nx workspace to run `:test` against
-- `working-directory`: location of nx workspace, will default to `'./'`
+| Name                | Description                                            | Required | Default |
+|---------------------|--------------------------------------------------------|----------|---------|
+| `project-name`      | name of project in nx workspace to run `:test` against | Yes      |         |
+| `working-directory` | location of nx workspace                               | No       | `./`    |
 
 #### nx-test-and-build
 
@@ -279,5 +281,7 @@ jobs:
 
 Inputs:
 
-- `project-name`: name of project in nx workspace to run `:test` and `:build:production` against
-- `working-directory`: location of nx workspace, will default to `'./'`
+| Name                | Description                                            | Required | Default |
+|---------------------|--------------------------------------------------------|----------|---------|
+| `project-name`      | name of project in nx workspace to run targets against | Yes      |         |
+| `working-directory` | location of nx workspace                               | No       | `./`    |
