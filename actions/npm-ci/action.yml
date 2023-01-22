@@ -28,4 +28,17 @@ runs:
       name: Install dependencies
       working-directory: ${{ inputs.working-directory }}
       if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-      run: npm ci
+      run: |
+        npm ci
+
+    - shell: pwsh
+      name: Check path for cache
+      run: |
+        if (Test-Path ${{ inputs.working-directory }}node_modules)
+        {
+          Write-Output "node_modules found, will be cached"
+        }
+        else
+        {
+          Write-Output "::warning title=node_modules not found::node_modules not found using path '${{ inputs.working-directory }}'"
+        }

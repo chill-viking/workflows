@@ -143,7 +143,12 @@ jobs:
 
 Inputs:
 
-- `working-directory`: location of root npm folder, defaults to `'./'` (should contain `/` as `node_modules` will be appended to specify location of node modules folder)
+| Name                | Description                                 | Required | Default |
+|---------------------|---------------------------------------------|----------|---------|
+| `working-directory` | The directory to run the workflow from. 1️⃣ | No       | `./`    |
+
+Notes:
+1️⃣ Make sure to suffix `working-directory` path with `/`, as `node_modules` will be appended to specify folder to be cached
 
 #### nx-test
 
