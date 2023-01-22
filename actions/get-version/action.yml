@@ -1,0 +1,83 @@
+name: get-version
+author: 'Peter Jokumsen'
+description: |
+  Get package version.
+  Will get package version from package.json in the specified package-path
+  If is-release input set to false, will add -alpha.[github.run_number] to the version
+
+inputs:
+  version-to-bump:
+    description: 'Type of version to bump: major, minor, or patch'
+    default: 'patch'
+  package-path:
+    description: 'Path to package.json, defaults to "./" for root'
+    default: './'
+  is-release:
+    description: 'Set to true if this is a proper release'
+    default: 'false'
+
+outputs:
+  version:
+    description: 'Resolved package version'
+    value: ${{ steps.set-version.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get NPM Package Version
+      id: get-package-version
+      uses: chill-viking/workflows/actions/get-json-version@main
+      with:
+        path: ${{ inputs.package-path }}
+
+    - name: Bump ${{ inputs.version-to-bump }}
+      id: bump-version
+      if: inputs.is-release == 'false'
+      shell: pwsh
+      run: |
+        $v = '${{ steps.get-package-version.outputs.json-version }}'.Split('.')
+        $change = '${{ inputs.version-to-bump }}'
+        $major = [int]$v[0]
+        $minor = [int]$v[1]
+        $patch = [int]$v[2]
+        if ($change -eq 'major')
+        {
+            $major++
+        }
+        elseif ($change -eq 'minor')
+        {
+            $minor++
+        }
+        elseif ($change -eq 'patch')
+        {
+            $patch++
+        }
+        else
+        {
+            Write-Error "Invalid change type: $change"
+        }
+
+        $newVersion = "$major.$minor.$patch"
+        Write-Output "version=${newVersion}" >> $env:GITHUB_OUTPUT
+
+    - name: Create alpha version
+      id: alpha-version
+      if: inputs.is-release == 'false'
+      shell: pwsh
+      run: |
+        $v = '${{ steps.bump-version.outputs.version }}'
+        $newVersion = "${v}-alpha.${{ github.run_number }}"
+        Write-Output "version=${newVersion}" >> $env:GITHUB_OUTPUT
+
+    - name: Output Version
+      id: set-version
+      shell: pwsh
+      run: |
+        $npmVersion = '${{ steps.get-package-version.outputs.json-version }}'
+        $version = '${{ steps.alpha-version.outputs.version }}'
+        if ($version -eq '')
+        {
+            $version = $npmVersion
+        }
+
+        Write-Output "version=${version}" >> $env:GITHUB_OUTPUT

@@ -120,6 +120,7 @@ uses: chill-viking/workflows/actions/{action-folder}@main
 ### Available composite actions
 
 - [get-json-version](#get-json-version)
+- [get-version](#get-version)
 - [npm-ci](#npm-ci)
 - [nx-test](#nx-test)
 - [nx-test-and-build](#nx-test-and-build)
@@ -162,6 +163,49 @@ Outputs:
 | Name           | Description                                                       |
 |----------------|-------------------------------------------------------------------|
 | `json-version` | The value of `version` property from `json-file` in `path` folder |
+
+#### get-version
+
+Get version from `package.json` and prepare as an alpha version, if `is-release` not provided or set to `'false'`.
+
+The alpha version generated will be `{adjusted-package-version}-alpha.{github.run_number}`.
+Using `{github.run_number}` to ensure that the alpha version is unique.
+
+`{adjusted-package-version}` will be a bumped version of the version from `package.json`.
+Choose which part of the version to bump by providing `version-to-bump` input, which can be `major`, `minor`, or `patch`.
+This will default to `patch`.
+
+Usage:
+
+```yml
+jobs:
+  job-id:
+    name: 'Name of job'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: chill-viking/workflows/actions/get-version@main
+        name: Get version
+        id: step-id
+        with:
+          package-path: './npm-root-folder'
+
+      # Use version read from ./npm-root-folder/package.json
+      - run: echo ${{ steps.step-id.outputs.version }} # 1.0.0-alpha.123
+```
+
+Inputs:
+
+| Name              | Description                                                | Required | Default   |
+|-------------------|------------------------------------------------------------|----------|-----------|
+| `package-path`    | The path of the folder containing the `package.json` file. | No       | `./`      |
+| `is-release`      | Whether the output `version` is meant for a release.       | No       | `'false'` |
+| `version-to-bump` | Which part of the version to bump.                         | No       | `'patch'` |
+
+Outputs:
+
+| Name      | Description                                                                    |
+|-----------|--------------------------------------------------------------------------------|
+| `version` | The resolved version to be used, either an alpha version or the actual version |
 
 #### npm-ci
 
