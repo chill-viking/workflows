@@ -21,6 +21,7 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 ### Available Re-usable Workflows
 
 - [nx-test-affected.yml](#test-affectedyml)
+- [nx-sonar-cloud-all.yml](#nx-sonar-cloud-allyml)
 - [nx-sonar-cloud-scan.yml](#nx-sonar-cloud-scanyml)
 
 #### test-affected.yml
@@ -49,6 +50,75 @@ Inputs:
 | `agent-count`       | The number of agents to use for parallelization. | No       | `3`           |
 | `base`              | The base branch to compare against.              | No       | `origin/main` |
 | `head`              | The head branch to compare against.              | No       | `HEAD`        |
+
+#### nx-sonar-cloud-all.yml
+
+Will test and publish results to sonar cloud for all libs and/or apps in an nx workspace that have `sonar-project.properties` file.
+
+The expectation of this workflow is that the `sonar-project.properties` file is in the folder of the lib/app that you want to have scanned.
+
+Usage:
+```yml
+jobs:
+  use-workflow:
+    name: Publish libs & apps
+    uses: chill-viking/workflows/.github/workflows/nx-sonar-cloud-all.yml@main
+    with:
+      working-directory: ./nx-workspace-folder/
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Expected Config:
+
+The following config files are expected in the project path to be scanned.
+
+**sonar-project.properties**
+
+Configuration for the sonar cloud scan. And will be used to determine the project path for the scan.
+
+```properties
+sonar.organization=[sonar-org]
+sonar.projectKey=[sonar-project]
+
+sonar.javascript.lcov.reportPaths=[lcov.info location]
+sonar.typescript.tsconfigPaths=[tsconfig location]
+```
+
+| Value Name           | Description                                                                                                                   |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `sonar-org`          | Sonar Cloud organization key                                                                                                  |
+| `sonar-project`      | Sonar Cloud project key                                                                                                       |
+| `lcov.info location` | Location of `lcov.info` file                                                                                                  |
+| `tsconfig location`  | Location of `tsconfig.json` file, typically `tsconfig.lib.json` or `tsconfig.app.json` to exclude specs from coverage results |
+
+**jest.config.ts**
+
+Configuration for the jest test runner. These are primarily suggestions to ensure that the coverage report is generated with the necessary root.
+
+```typescript
+export default {
+  // ...
+  coverageDirectory: 'coverage',
+  coverageReporters: [['lcov', { projectRoot: 'apps/my-app' }]],
+  // ...
+}
+```
+
+| Property Name       | Description                                                                               |
+|---------------------|-------------------------------------------------------------------------------------------|
+| `coverageDirectory` | Directory to place coverage report, relative to project path in workspace.                |
+| `coverageReporters` | Reporters to use for coverage report. Set to use `lcov` and specify root as project path. |
+
+Defining the `projectRoot` will ensure that the coverage report is able to map source files in the sonar cloud report. Because the project root will be used as the root for the scan.
+
+Inputs:
+
+| Name                | Description                                                                                                                                                          | Required | Default       |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------------|
+| `working-directory` | The directory of the nx workspace.                                                                                                                                   | No       | `./`          |
+| `is-release`        | Whether or not the scan being performed is a release. Will use an alpha version if set to false or not included. See [get-version](#get-version) action for details. | No       | `false`       |
 
 #### nx-sonar-cloud-scan.yml
 

@@ -1,0 +1,106 @@
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Directory of nx workspace'
+        type: string
+        default: './'
+      is-release:
+        description: 'Is this a release build?'
+        type: boolean
+        default: false
+    secrets:
+      sonar-token:
+        description: 'Sonar token'
+        required: true
+      github-token:
+        description: 'GitHub token'
+        required: true
+
+name: Publish to SonarCloud
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-nx-sonar-cloud-all
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-matrix:
+    name: Prepare Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-folders.outputs.folders }}
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+
+      - shell: pwsh
+        name: Get all folders with sonar-project.properties
+        id: get-folders
+        run: |
+          $files = Get-ChildItem -Recurse -Filter sonar-project.properties -File
+          $rawFolders = $files | Select-Object -ExpandProperty Directory
+          $workspace = '${{ inputs.working-directory }}'.Replace('./', '')
+          $folders = $rawFolders | ForEach-Object { $_.FullName.Replace("${{ github.workspace }}/$workspace", '') }
+          $serialized = $folders | ConvertTo-Json -Compress
+          Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
+
+  main:
+    name: Publish to SonarCloud
+    needs: prepare-matrix
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ${{ inputs.working-directory }}
+    strategy:
+      matrix:
+        folder: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+        with:
+          fetch-depth: 0
+
+      - name: Set Project Path
+        id: project-path
+        shell: pwsh
+        run: |
+          $fullPath = '${{ inputs.working-directory }}${{ matrix.folder }}'
+          Write-Output "full_path=${fullPath}" >> $env:GITHUB_OUTPUT
+
+      - name: Get Project Name
+        id: get-name
+        run: |
+          $projectName = '${{ matrix.folder }}'.Replace('apps/', '').Replace('libs/', '')
+          Write-Output "project=$projectName" >> $env:GITHUB_OUTPUT
+
+      - uses: chill-viking/workflows/actions/npm-ci@main
+        name: Install Dependencies
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - uses: chill-viking/workflows/actions/nx-test@main
+        name: Test Project
+        with:
+          project-name: ${{ steps.get-name.outputs.project }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Get Version
+        id: get-version
+        uses: chill-viking/workflows/actions/get-version@main
+        with:
+          package-path: ${{ steps.project-path.outputs.full_path }}
+          is-release: ${{ inputs.is-release }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ${{ steps.project-path.outputs.full_path }}
+          args: >
+            -Dsonar.projectVersion=${{ steps.get-version.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.github-token }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
