@@ -9,6 +9,10 @@ on:
         description: 'Is this a release build?'
         type: boolean
         default: false
+      released-paths:
+        description: 'Paths to release'
+        type: string
+        default: '[]'
     secrets:
       sonar-token:
         description: 'Sonar token'
@@ -31,7 +35,7 @@ jobs:
     name: Prepare Matrix
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.get-folders.outputs.folders }}
+      matrix: ${{ steps.resolved-folders.outputs.folders }}
     steps:
       - uses: actions/checkout@v3
         name: Checkout
@@ -44,12 +48,71 @@ jobs:
           $rawFolders = $files | Select-Object -ExpandProperty Directory
           $workspace = '${{ inputs.working-directory }}'.Replace('./', '')
           $folders = $rawFolders | ForEach-Object { $_.FullName.Replace("${{ github.workspace }}/$workspace", '') }
-          $serialized = $folders | ConvertTo-Json -Compress
+          $serialized = ConvertTo-Json -InputObject $folders -Compress
+          Write-Output "output=${serialized}"
+          Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
+
+      - shell: pwsh
+        name: Prepare Release Folders
+        if: ${{ inputs.is-release }}
+        id: released-folders
+        run: |
+          $folders = @('${{ steps.get-folders.outputs.folders }}' | ConvertFrom-Json)
+          $releasedPaths = @('${{ inputs.released-paths }}' | ConvertFrom-Json)
+          $workingFolderFilter = '${{ inputs.working-directory }}'.Replace('./', '')
+          $resolvedFolders = @()
+          foreach ($path in $releasedPaths)
+          {
+              Write-Output "Parsing path: ${path}"
+              $parsed = $path -replace "${workingFolderFilter}", ""
+              Write-Output "Parsed path: ${parsed}"
+              if ($folders -contains $parsed)
+              {
+                  Write-Output "${parsed} found in ${folders}"
+                  $resolvedFolders += $parsed
+              }
+              else
+              {
+                  Write-Output "${parsed} not found in ${folders}"
+              }
+          }
+
+          if ($resolvedFolders.Count -eq 0)
+          {
+              Write-Output "********************* Warning *********************"
+              $serializedReleased = $releasedPaths | ConvertTo-Json
+              Write-Output "Received released paths: ${serializedReleased}"
+              Write-Output "These folders were adjusted to exclude working directory using [${workingFolderFilter}]"
+              $serializedFolders = $folders | ConvertTo-Json
+              Write-Output "Folders containing SonarCloud properties: ${serializedFolders}"
+              Write-Output "::warning::No folders found to publish to SonarCloud, review logs for more details"
+              Write-Output "**************************************************"
+              Write-Output "folders=[]" >> $env:GITHUB_OUTPUT
+          }
+
+          # not piped because single element arrays are not serialized correctly
+          $serialized = ConvertTo-Json -InputObject $resolvedFolders -Compress
+          Write-Output "output=${serialized}"
+          Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
+
+      - shell: pwsh
+        name: Resolve Folders
+        id: resolved-folders
+        run: |
+          $folders = @('${{ steps.get-folders.outputs.folders }}' | ConvertFrom-Json)
+          if ('${{ inputs.is-release }}' -eq 'true')
+          {
+              $folders = @('${{ steps.released-folders.outputs.folders }}' | ConvertFrom-Json)
+          }
+
+          $serialized = ConvertTo-Json -InputObject $folders -Compress
+          Write-Output "output=$serialized"
           Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
 
   main:
-    name: Publish to SonarCloud
+    name: publish to sonarcloud
     needs: prepare-matrix
+    if: needs.prepare-matrix.outputs.matrix != '[]'
     defaults:
       run:
         shell: pwsh
