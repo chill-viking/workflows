@@ -23,6 +23,7 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 - [nx-test-affected.yml](#test-affectedyml)
 - [nx-sonar-cloud-all.yml](#nx-sonar-cloud-allyml)
 - [nx-sonar-cloud-scan.yml](#nx-sonar-cloud-scanyml)
+- [swa-deploy](#swa-deploy)
 
 #### test-affected.yml
 
@@ -177,6 +178,44 @@ Secrets:
 |----------------|------------------------------|
 | `sonar-token`  | Sonar Cloud token            |
 | `github-token` | GitHub token for PR comments |
+
+#### swa-deploy
+
+Deploy Azure Static Web App. Will do an initial installation of dependencies, to speed up build process.
+
+Usage:
+
+```yaml
+jobs:
+  deploy:
+    uses: chill-viking/workflows/.github/workflows/swa-deploy.yml@main
+    name: SWA
+    if: always() # ensure that used for closed event action, to destroy pull request environment
+    with:
+      working_directory: ./work_dir
+      app_location: ./work_dir
+      output_location: work_dir/dist
+    secrets:
+      swa_token: ${{ secrets.SWA_TOKEN }}
+      git_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Parameters:
+
+| Name                | Description                                              | Required | Default  |
+|---------------------|----------------------------------------------------------|----------|----------|
+| `output_location`   | Location of compiled frontend application to be deployed | Yes      |          |
+| `action`            | Action to perform                                        | No       | `upload` |
+| `app_location`      | Location of application source code to be built          | No       | `/`      |
+| `api_location`      | Location of api source code to be used                   | No       | `''`     |
+| `working_directory` | Location of working directory to install dependencies    | No       | `./`     |
+
+Secrets:
+
+| Name        | Description                  |
+|-------------|------------------------------|
+| `swa_token` | Azure Static Web App token   |
+| `git_token` | GitHub token for PR comments |
 
 ## Composite actions
 

@@ -1,0 +1,74 @@
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: 'Directory of nx workspace'
+        type: string
+        default: './'
+      action:
+        description: 'Action to perform'
+        type: string
+        default: 'upload'
+      app_location:
+        description: 'Location of application source code'
+        type: string
+        default: '/'
+      api_location:
+        description: 'Location of api source code'
+        type: string
+        default: ''
+      output_location:
+        description: 'Location application is built to'
+        type: string
+        required: true
+    secrets:
+      swa_token:
+        description: 'Azure Static Web Apps API Token'
+        required: true
+      git_token:
+        description: 'GitHub token'
+        required: true
+
+name: Azure Static Web Apps CI/CD
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      # should theoretically speed up build and deploy.
+      - uses: chill-viking/npm-ci@v1
+        name: Install Dependencies
+        with:
+          working_directory: ${{ inputs.working_directory }}
+
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.swa_token }}
+          repo_token: ${{ secrets.git_token }} # Used for Github integrations (i.e. PR comments)
+          action: ${{ inputs.action }}
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: ${{ inputs.app_location }} # App source code path
+          api_location: ${{ inputs.api_location }} # Api source code path - optional
+          output_location: ${{ inputs.output_location }} # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.swa_token }}
+          action: 'close'
