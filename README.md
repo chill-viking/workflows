@@ -53,7 +53,7 @@ Inputs:
 
 #### nx-sonar-cloud-all.yml
 
-Will test and publish results to sonar cloud for all libs and/or apps in an nx workspace that have `sonar-project.properties` file.
+Will test and publish results to sonar cloud for all libs and/or apps in a nx workspace that have `sonar-project.properties` file.
 
 The expectation of this workflow is that the `sonar-project.properties` file is in the folder of the lib/app that you want to have scanned.
 
