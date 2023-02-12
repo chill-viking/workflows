@@ -280,6 +280,9 @@ Outputs:
 
 #### npm-ci
 
+:warning: This action has been moved to its own [repository](https://github.com/chill-viking/npm-ci),
+with a change to input. `working-directory` changed to `working_directory` (`_` instead of `-`)
+
 Install npm dependencies, using cache if already cached. Cache based on available `package-lock.json` files in source.
 
 Usage:

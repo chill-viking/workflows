@@ -10,6 +10,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - shell: pwsh
+      run: |
+        Write-Output "::warning title=action deprecated::use chill-viking/npm-ci@latest instead, working-directory input changed to working_directory"
+
     - name: Use node_modules from cache [npm]
       id: cache-nodemodules
       uses: actions/cache@v3
