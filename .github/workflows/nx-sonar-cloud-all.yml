@@ -52,6 +52,10 @@ jobs:
           Write-Output "output=${serialized}"
           Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
 
+          $csv = $folders -join ","
+          Write-Output "csv output=${csv}"
+          Write-Output "folders_csv=${csv}" >> $env:GITHUB_OUTPUT
+
       - shell: pwsh
         name: Prepare Release Folders
         if: ${{ inputs.is-release }}
@@ -95,6 +99,13 @@ jobs:
           Write-Output "output=${serialized}"
           Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: ${{ steps.get-folders.outputs.folders_csv }}
+          files_separator: ","
+
       - shell: pwsh
         name: Resolve Folders
         id: resolved-folders
@@ -104,6 +115,27 @@ jobs:
           {
               $folders = @('${{ steps.released-folders.outputs.folders }}' | ConvertFrom-Json)
           }
+          else
+          {
+            $changed = '${{ steps.changed-files.outputs.all_changed_files }}'
+            $newFolders = $folders | Where-Object { $changed -like "*$_*" }
+            if ($newFolders.Count -gt 0)
+            {
+              Write-Output "********************* Information *********************"
+              Write-Output "   Changed folders found, publishing to SonarCloud"
+              Write-Output "   Folders to be scanned"
+              $newFolders | ForEach-Object { Write-Output "   - $_" }
+              Write-Output "*******************************************************"
+            }
+            else
+            {
+              Write-Output "********************* Information *********************"
+              Write-Output "   No changed folders found, skipping SonarCloud"
+              Write-Output "*******************************************************"
+            }
+
+            $folders = $newFolders
+          }
 
           $serialized = ConvertTo-Json -InputObject $folders -Compress
           Write-Output "output=$serialized"
@@ -112,7 +144,7 @@ jobs:
   main:
     name: publish to sonarcloud
     needs: prepare-matrix
-    if: needs.prepare-matrix.outputs.matrix != '[]'
+    if: needs.prepare-matrix.outputs.matrix != '[]' && needs.prepare-matrix.outputs.matrix != 'null'
     defaults:
       run:
         shell: pwsh
@@ -140,10 +172,10 @@ jobs:
           $projectName = '${{ matrix.folder }}'.Replace('apps/', '').Replace('libs/', '')
           Write-Output "project=$projectName" >> $env:GITHUB_OUTPUT
 
-      - uses: chill-viking/workflows/actions/npm-ci@main
+      - uses: chill-viking/npm-ci@latest
         name: Install Dependencies
         with:
-          working-directory: ${{ inputs.working-directory }}
+          working_directory: ${{ inputs.working-directory }}
 
       - uses: chill-viking/workflows/actions/nx-test@main
         name: Test Project

@@ -56,7 +56,7 @@ Inputs:
 
 Will test and publish results to sonar cloud for all libs and/or apps in a nx workspace that have `sonar-project.properties` file.
 
-The expectation of this workflow is that the `sonar-project.properties` file is in the folder of the lib/app that you want to have scanned.
+This workflow will only scan projects that have a `sonar-project.properties` file in the project folder, and either the folder is included in `released-paths` input or changes have occurred in the folder.
 
 Usage:
 ```yml
