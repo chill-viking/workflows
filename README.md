@@ -202,13 +202,16 @@ jobs:
 
 Parameters:
 
-| Name                | Description                                              | Required | Default  |
-|---------------------|----------------------------------------------------------|----------|----------|
-| `output_location`   | Location of compiled frontend application to be deployed | Yes      |          |
-| `action`            | Action to perform                                        | No       | `upload` |
-| `app_location`      | Location of application source code to be built          | No       | `/`      |
-| `api_location`      | Location of api source code to be used                   | No       | `''`     |
-| `working_directory` | Location of working directory to install dependencies    | No       | `./`     |
+| Name                | Description                                               | Required | Default               |
+|---------------------|-----------------------------------------------------------|----------|-----------------------|
+| `output_location`   | Location of compiled frontend application to be deployed  | Yes      |                       |
+| `action`            | Action to perform                                         | No       | `upload`              |
+| `app_location`      | Location of application source code to be built           | No       | `/`                   |
+| `api_location`      | Location of api source code to be used                    | No       | `''`                  |
+| `working_directory` | Location of working directory to install dependencies     | No       | `./`                  |
+| `files_for_deploy`  | Files to check for change, when changed deploy will occur | No       | `'**/*.ts,**/*.html'` |
+| `file_separator`    | Separator to use for files                                | No       | `','`                 |
+| `debug`             | Whether or not to output debug logs                       | No       | `false`               |
 
 Secrets:
 
