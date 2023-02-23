@@ -39,10 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: chill-viking/workflows/actions/npm-ci@main
+      - uses: chill-viking/npm-ci@latest
         name: Install dependencies w/ caching
         with:
-          working-directory: ${{ inputs.working-directory }}
+          working_directory: ${{ inputs.working-directory }}
 
       - name: Lint Workspace
         run: npx nx-cloud record -- npx nx workspace-lint
@@ -65,10 +65,10 @@ jobs:
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
 
-      - uses: chill-viking/workflows/actions/npm-ci@main
+      - uses: chill-viking/npm-ci@latest
         name: Install dependencies w/ caching
         with:
-          working-directory: ${{ inputs.working-directory }}
+          working_directory: ${{ inputs.working-directory }}
 
       - name: Run Target ${{ matrix.target }}
         run: |

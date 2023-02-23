@@ -86,7 +86,7 @@ jobs:
           submodules: true
 
       # should theoretically speed up build and deploy.
-      - uses: chill-viking/npm-ci@v1
+      - uses: chill-viking/npm-ci@latest
         name: Install Dependencies
         with:
           working_directory: ${{ inputs.working_directory }}

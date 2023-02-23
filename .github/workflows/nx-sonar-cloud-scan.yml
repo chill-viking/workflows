@@ -64,10 +64,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: chill-viking/workflows/actions/npm-ci@main
+      - uses: chill-viking/npm-ci@latest
         name: Install Dependencies
         with:
-          working-directory: ${{ inputs.working-directory }}
+          working_directory: ${{ inputs.working-directory }}
 
       - uses: chill-viking/workflows/actions/nx-test-and-build@main
         name: Test and Build project
