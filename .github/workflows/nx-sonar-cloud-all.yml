@@ -13,6 +13,14 @@ on:
         description: 'Paths to release'
         type: string
         default: '[]'
+      files-for-coverage:
+        description: 'Files to check for coverage'
+        type: string
+        default: '**/*.ts,**/*.html,**/*.cs'
+      files-separator:
+        description: 'Separator for files-for-coverage'
+        type: string
+        default: ','
     secrets:
       sonar-token:
         description: 'Sonar token'
@@ -52,7 +60,16 @@ jobs:
           Write-Output "output=${serialized}"
           Write-Output "folders=$serialized" >> $env:GITHUB_OUTPUT
 
-          $csv = $folders -join ","
+          # create foldersWithFileMasks array that includes each file for coverage in $folders
+          $fileMasks = '${{ inputs.files-for-coverage }}'.Split('${{ inputs.files-separator }}')
+          $foldersWithFileMasks = @()
+          foreach ($folder in $folders)
+          {
+              $folderWithFileMask = $fileMasks | ForEach-Object { "$folder/$_" }
+              $foldersWithFileMasks += $folderWithFileMask
+          }
+
+          $csv = $foldersWithFileMasks -join ','
           Write-Output "csv output=${csv}"
           Write-Output "folders_csv=${csv}" >> $env:GITHUB_OUTPUT
 

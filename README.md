@@ -116,11 +116,13 @@ Defining the `projectRoot` will ensure that the coverage report is able to map s
 
 Inputs:
 
-| Name                | Description                                                                                                                                                          | Required | Default |
-|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `working-directory` | The directory of the nx workspace.                                                                                                                                   | No       | `./`    |
-| `is-release`        | Whether or not the scan being performed is a release. Will use an alpha version if set to false or not included. See [get-version](#get-version) action for details. | No       | `false` |
-| `released-paths`    | The paths of released projects to be scanned, will filter out paths without `sonar-project.properties`. Only used when `is-released` is `'true'`                     | No       | `[]`    |
+| Name                 | Description                                                                                                                                                          | Required | Default                     |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-----------------------------|
+| `working-directory`  | The directory of the nx workspace.                                                                                                                                   | No       | `./`                        |
+| `is-release`         | Whether or not the scan being performed is a release. Will use an alpha version if set to false or not included. See [get-version](#get-version) action for details. | No       | `false`                     |
+| `released-paths`     | The paths of released projects to be scanned, will filter out paths without `sonar-project.properties`. Only used when `is-released` is `'true'`                     | No       | `[]`                        |
+| `files-for-coverage` | The files to be used for coverage report. Will be used to check for changes to confirm if coverage report is necessary.                                              | No       | `**/*.ts,**/*.html,**/*.cs` |
+| `files-separator`    | The separator to use for `files-for-coverage` input.                                                                                                                 | No       | `,`                         |
 
 #### nx-sonar-cloud-scan.yml
 
