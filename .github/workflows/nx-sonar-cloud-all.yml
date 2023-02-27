@@ -65,7 +65,7 @@ jobs:
           $foldersWithFileMasks = @()
           foreach ($folder in $folders)
           {
-              $folderWithFileMask = $fileMasks | ForEach-Object { "$folder/$_" }
+              $folderWithFileMask = $fileMasks | ForEach-Object { "**/$folder/$_" }
               $foldersWithFileMasks += $folderWithFileMask
           }
 
