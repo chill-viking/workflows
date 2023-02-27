@@ -212,7 +212,7 @@ jobs:
         with:
           projectBaseDir: ${{ steps.project-path.outputs.full_path }}
           args: >
-            -Dsonar.projectVersion=${{ steps.get-version.version }}
+            -Dsonar.projectVersion=${{ steps.get-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.github-token }}
           SONAR_TOKEN: ${{ secrets.sonar-token }}
