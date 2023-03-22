@@ -1,0 +1,55 @@
+on:
+  workflow_call:
+    inputs:
+      debug:
+        description: 'Debug flag'
+        type: boolean
+        default: false
+    secrets:
+      sonar_token:
+        description: 'Sonar token'
+        required: true
+      git_pat:
+        description: 'GitHub PAT with write access'
+        required: true
+    outputs:
+      releases_created:
+        description: 'Were releases created?'
+        value: ${{ jobs.release-please.outputs.releases_created }}
+      paths_released:
+        description: 'Paths released'
+        value: ${{ jobs.release-please.outputs.paths_released }}
+
+name: Release Manifest
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          token: ${{ secrets.git_pat }}
+          default-branch: main
+
+      - name: Dump release-please
+        if: ${{ inputs.debug }}
+        env:
+          RELEASE_CONTEXT: ${{ toJson(steps.release) }}
+        run: echo "$RELEASE_CONTEXT"
+
+  publish-to-sonar-cloud:
+    needs: release-please
+    uses: chill-viking/workflows/.github/workflows/nx-sonar-cloud-all.yml@main
+    name: Coverage Report
+    if: needs.release-please.outputs.releases_created == 'true'
+    with:
+      is-release: true
+      released-paths: ${{ needs.release-please.outputs.paths_released }}
+    secrets:
+      sonar-token: ${{ secrets.sonar_token }}
+      github-token: ${{ secrets.git_pat }}

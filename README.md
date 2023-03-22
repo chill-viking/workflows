@@ -20,37 +20,11 @@ For more detail you can start your journey at [Creating a reusable workflow](htt
 
 ### Available Re-usable Workflows
 
-- [nx-test-affected.yml](#test-affectedyml)
 - [nx-sonar-cloud-all.yml](#nx-sonar-cloud-allyml)
 - [nx-sonar-cloud-scan.yml](#nx-sonar-cloud-scanyml)
+- [nx-test-affected.yml](#nx-test-affectedyml)
+- [release-manifest-please](#release-manifest-pleaseyml)
 - [swa-deploy](#swa-deploy)
-
-#### test-affected.yml
-
-Will call lint/test/build targets for all affected projects inside the specified nx workspace.
-
-Usage:
-
-```yml
-jobs:
-  use-remote-workflow:
-    uses: chill-viking/workflows/.github/workflows/nx-test-affected.yml@main
-    name: 'Test Affected'
-    with:
-      working-directory: './npm-root-folder/'
-      fetch-depth: 0
-      agent-count: 4
-```
-
-Inputs:
-
-| Name                | Description                                      | Required | Default       |
-|---------------------|--------------------------------------------------|----------|---------------|
-| `working-directory` | The directory to run the workflow from.          | No       | `./`          |
-| `fetch-depth`       | The number of commits to fetch.                  | No       | `0`           |
-| `agent-count`       | The number of agents to use for parallelization. | No       | `3`           |
-| `base`              | The base branch to compare against.              | No       | `origin/main` |
-| `head`              | The head branch to compare against.              | No       | `HEAD`        |
 
 #### nx-sonar-cloud-all.yml
 
@@ -180,6 +154,63 @@ Secrets:
 |----------------|------------------------------|
 | `sonar-token`  | Sonar Cloud token            |
 | `github-token` | GitHub token for PR comments |
+
+#### nx-test-affected.yml
+
+Will call lint/test/build targets for all affected projects inside the specified nx workspace.
+
+Usage:
+
+```yml
+jobs:
+  use-remote-workflow:
+    uses: chill-viking/workflows/.github/workflows/nx-test-affected.yml@main
+    name: 'Test Affected'
+    with:
+      working-directory: './npm-root-folder/'
+      fetch-depth: 0
+      agent-count: 4
+```
+
+Inputs:
+
+| Name                | Description                                      | Required | Default       |
+|---------------------|--------------------------------------------------|----------|---------------|
+| `working-directory` | The directory to run the workflow from.          | No       | `./`          |
+| `fetch-depth`       | The number of commits to fetch.                  | No       | `0`           |
+| `agent-count`       | The number of agents to use for parallelization. | No       | `3`           |
+| `base`              | The base branch to compare against.              | No       | `origin/main` |
+| `head`              | The head branch to compare against.              | No       | `HEAD`        |
+
+#### release-manifest-please.yml
+
+Workflow to create a new release using [release-please](https://github.com/googleapis/release-please) using manifest configuration.
+Will create a pull request to update the manifest file and it's related project file with the new version.
+
+Usage:
+
+```yml
+jobs:
+  use-remote-workflow:
+    uses: chill-viking/workflows/.github/workflows/release-manifest-please.yml@main
+    name: 'Release Please'
+    secrets:
+      git_pat: ${{ secrets.GITHUB_PAT }}
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+```
+
+Parameters:
+
+| Name    | Description                          | Required | Default |
+|---------|--------------------------------------|----------|---------|
+| `debug` | Whether or not to run in debug mode. | No       | `false` |
+
+Secrets:
+
+| Name          | Description                                                                            |
+|---------------|----------------------------------------------------------------------------------------|
+| `git_pat`     | GitHub token for creating new release PR, will require write access to the repository. |
+| `sonar_token` | Sonar Cloud token for publishing coverage results.                                     |
 
 #### swa-deploy
 
