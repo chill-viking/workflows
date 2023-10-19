@@ -37,7 +37,7 @@ jobs:
         shell: pwsh
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: chill-viking/npm-ci@latest
         name: Install dependencies w/ caching
@@ -61,7 +61,7 @@ jobs:
         shell: pwsh
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
 
