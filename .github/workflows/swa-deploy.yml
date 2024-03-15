@@ -61,7 +61,7 @@ jobs:
 
       - name: Check If Change Needed
         id: check
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v43
         with:
           files: ${{ inputs.files_for_deploy }}
           files_separator: ${{ inputs.files_separator }}
