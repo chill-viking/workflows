@@ -59,7 +59,7 @@ jobs:
     name: publish to sonarcloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: 'Checkout code'
         with:
           fetch-depth: 0
